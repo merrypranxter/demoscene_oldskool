@@ -274,6 +274,8 @@ async function init() {
 
 init().catch((err) => {
   console.error(err);
-  document.body.insertAdjacentHTML('beforeend',
-    `<pre style="position:fixed;bottom:0;left:0;right:0;color:#ff006e;background:#000;padding:1em;margin:0;font-size:11px;white-space:pre-wrap;z-index:99">${err.message}</pre>`);
+  const pre = document.createElement('pre');
+  pre.style.cssText = 'position:fixed;bottom:0;left:0;right:0;color:#ff006e;background:#000;padding:1em;margin:0;font-size:11px;white-space:pre-wrap;z-index:99';
+  pre.textContent = err.message;
+  document.body.appendChild(pre);
 });
