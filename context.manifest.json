@@ -1,0 +1,36 @@
+{
+  "name": "autostereogram",
+  "title": "Autostereogram — Magic Eye / SIRDS",
+  "description": "A repeating-pattern field that hides a 3D depth map; the brain fuses it wall-eyed. GPU per-pixel pattern-shift approximation for real-time, plus a true Thimbleby/Inglis/Witten row-linking SIRDS on the CPU for export-quality stills.",
+  "kind": "consumer",
+  "tech": ["webgl2", "glsl", "javascript-esm"],
+  "renders": "320x200-class chunky aesthetic, nearest-neighbor upscale, CRT scanlines",
+  "engines": {
+    "depth": ["sdf-shape", "raymarch-depth", "noise-terrain"]
+  },
+  "pattern_sources": ["random_dots", "tiled_image", "animated_noise"],
+  "pipeline": [
+    "depth.frag -> depth map z(x,y) in [0,1] to FBO",
+    "stereogram.frag -> per-pixel horizontal pattern shift (GPU ~90% approximation)",
+    "post-process.frag -> CRT scanlines + vignette",
+    "sirds-cpu.js -> true row-linking SIRDS for export"
+  ],
+  "parameters": {
+    "pattern_period_E": { "default": 128, "shallow": 64, "deep": 256, "range": [48, 256] },
+    "depth_scale_mu": { "default": 0.4, "subtle": 0.2, "extreme": 0.8, "range": [0.05, 0.85] },
+    "pattern_source": ["random_dots", "tiled_image", "animated_noise"],
+    "animate": [true, false]
+  },
+  "palettes": {
+    "classic": ["#000000", "#ffffff"],
+    "lisa_frank": ["#ff00cc", "#00ffcc", "#ffff00", "#ff6600"],
+    "neon_noise": ["#0a001a", "#8338ec", "#ff006e", "#ffbe0b"]
+  },
+  "ecosystem": {
+    "consumes": ["sdf_fields", "raymarching", "*_aesthetic", "*_patterns"],
+    "pairs_with": ["op_art_style", "moire", "lisa_frank_aesthetic", "zeno_tunnel"]
+  },
+  "entry": "index.html",
+  "math_reference": "docs/math-reference.md",
+  "visual_targets": "docs/visual-targets.md"
+}

@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>autostereogram — magic eye / SIRDS</title>
+<style>
+  :root {
+    --bg: #0a001a;
+    --fg: #00ffcc;
+    --accent: #ff006e;
+    --panel: rgba(10, 0, 26, 0.82);
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0;
+    height: 100%;
+    background: #000;
+    color: var(--fg);
+    font-family: "Courier New", monospace;
+    overflow: hidden;
+  }
+  #stage {
+    position: fixed;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    background:
+      radial-gradient(circle at 50% 30%, #1a0033 0%, #000 70%);
+  }
+  /* the chunky is the right. nearest-neighbor upscale, no smoothing. */
+  canvas {
+    image-rendering: pixelated;
+    image-rendering: crisp-edges;
+    max-width: 100vw;
+    max-height: 100vh;
+    box-shadow: 0 0 40px rgba(131, 56, 236, 0.4);
+  }
+  #ui {
+    position: fixed;
+    top: 12px;
+    left: 12px;
+    width: 280px;
+    max-height: calc(100vh - 24px);
+    overflow-y: auto;
+    padding: 14px 16px;
+    background: var(--panel);
+    border: 1px solid var(--accent);
+    border-radius: 6px;
+    backdrop-filter: blur(3px);
+    font-size: 12px;
+    line-height: 1.5;
+    user-select: none;
+    z-index: 10;
+  }
+  #ui h1 {
+    margin: 0 0 4px;
+    font-size: 15px;
+    letter-spacing: 2px;
+    color: #ffbe0b;
+    text-shadow: 0 0 8px rgba(255, 190, 11, 0.6);
+  }
+  #ui .sub { color: var(--accent); margin: 0 0 12px; font-size: 10px; }
+  #ui label { display: block; margin: 10px 0 2px; color: #8338ec; text-transform: uppercase; font-size: 10px; letter-spacing: 1px; }
+  #ui select, #ui input[type=range], #ui button {
+    width: 100%;
+    background: #160029;
+    color: var(--fg);
+    border: 1px solid #8338ec;
+    border-radius: 3px;
+    padding: 5px;
+    font-family: inherit;
+    font-size: 12px;
+  }
+  #ui button { cursor: pointer; margin-top: 10px; transition: all .12s; }
+  #ui button:hover { background: var(--accent); color: #000; }
+  #ui .val { float: right; color: #ffbe0b; }
+  #ui .hint { margin-top: 12px; font-size: 10px; color: #5a4a7a; line-height: 1.4; }
+  #ui details { margin-top: 10px; }
+  #ui summary { cursor: pointer; color: #ffbe0b; font-size: 11px; }
+  #toggle {
+    position: fixed; top: 12px; right: 12px; z-index: 11;
+    background: var(--panel); color: var(--fg);
+    border: 1px solid var(--accent); border-radius: 6px;
+    padding: 8px 10px; cursor: pointer; font-family: inherit; font-size: 12px;
+  }
+  #toggle:hover { background: var(--accent); color: #000; }
+  .hidden { display: none !important; }
+</style>
+</head>
+<body>
+  <div id="stage"><canvas id="gl"></canvas></div>
+
+  <button id="toggle">[ hide ]</button>
+
+  <div id="ui">
+    <h1>AUTOSTEREOGRAM</h1>
+    <p class="sub">magic eye // SIRDS // wall-eyed</p>
+
+    <label>depth engine</label>
+    <select id="engine">
+      <option value="sdf-shape">sdf-shape (sphere/torus/glyph)</option>
+      <option value="raymarch-depth">raymarch-depth (3D scene)</option>
+      <option value="noise-terrain">noise-terrain (fbm heightfield)</option>
+    </select>
+
+    <label>pattern source</label>
+    <select id="pattern">
+      <option value="random_dots">random_dots — classic_dots</option>
+      <option value="tiled_image">tiled_image — lisa_frank_hidden</option>
+      <option value="animated_noise">animated_noise — breathing</option>
+    </select>
+
+    <label>pattern period E <span class="val" id="eVal">128</span></label>
+    <input id="E" type="range" min="48" max="256" step="1" value="128" />
+
+    <label>depth scale μ <span class="val" id="muVal">0.40</span></label>
+    <input id="mu" type="range" min="0.05" max="0.85" step="0.01" value="0.40" />
+
+    <label><input type="checkbox" id="animate" style="width:auto" /> animate (breathing glyph)</label>
+    <label><input type="checkbox" id="scanlines" style="width:auto" checked /> CRT scanlines</label>
+    <label><input type="checkbox" id="showDepth" style="width:auto" /> peek at depth map</label>
+
+    <button id="export">⬇ export true SIRDS (CPU)</button>
+
+    <details>
+      <summary>how to view ▸</summary>
+      <div class="hint">
+        <b>Wall-eyed (parallel):</b> look <i>through</i> the screen as if
+        focusing on something far behind it. Let the repeating pattern double,
+        then slide the two copies until a third fuses in the middle — the hidden
+        shape pops out toward you.<br><br>
+        <b>Tip:</b> put your nose near the screen, relax your eyes, then pull
+        back slowly while keeping the unfocused stare. The depth is the magic.
+      </div>
+    </details>
+
+    <div class="hint">
+      GPU path = per-pixel shift approximation (fast, ~90%).<br>
+      Export = true Thimbleby/Inglis/Witten row-linking SIRDS (slow, accurate).
+    </div>
+  </div>
+
+  <script type="module" src="./src/js/main.js"></script>
+</body>
+</html>
