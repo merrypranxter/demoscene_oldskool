@@ -1,0 +1,15 @@
+# the build is the noise. the noise is ignored.
+node_modules/
+dist/
+.cache/
+
+# editor cruft
+.vscode/
+.idea/
+*.swp
+*~
+.DS_Store
+
+# exported stills land wherever the browser drops them, but if you stash some here:
+exports/
+*.local.png
